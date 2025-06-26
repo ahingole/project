@@ -1,11 +1,19 @@
+
 const express = require("express");
+const {auth} = require("./middlewares/auth")
 
 const app = express();
 
-// app.use((req,res)=> {
-//     res.send("hello form the tester");
-// });
 
+app.use("/user",auth);
+
+app.get("/user/alluser",(req,res)=>{
+  res.send("got all data successfully")
+})
+
+app.post("/user/newprofile",(req,res)=>{
+  res.send("got all new profiledata")
+})
 // app.get("/ab?c", (req, res) => {
 //   res.send({
 //     name: "akkash",
@@ -28,33 +36,6 @@ const app = express();
 //   });
 // });
 
-app.get("/hello", (req,res, next)=>{
-
-    // res.send({
-    //     name:"akkash",
-    //     address:"washim maharashtra"
-    // });
-  next();
-},
-
-(req,res)=>{ 
-  res.send("this is route2")
-}
-
-) // this route only match /hellow 
-
-// app.use("/hello",(req,res)=> {
-//     res.send("hello with route");
-// });
-// app.post("/hello",(req,res)=>{
-//     console.log("save data on post")//save data to db
-//     res.send("data successfully saved")
-// })
-
-// app.delete("/hello",(req,res)=>{
-// console.log("delere")
-// res.send("detele successfully")
-// })
 
 app.listen(3000,()=>{
     console.log('listinng the server 3000')
