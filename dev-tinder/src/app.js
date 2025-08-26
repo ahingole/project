@@ -17,6 +17,42 @@ try{
 }
 })
 
+//to get a data base on some keys we can do thisby 
+app.get("/user", async(req, res)=>{
+  const email=req.body.emailId;
+
+  try{ 
+    const userData = await User.findOne({emailId:email})
+ res.send(userData)
+  }catch(err){
+    res.status(400).send("someting went wrong")
+  }
+})
+
+//this api was to delete the user 
+app.delete("/user", async(req, res)=>{
+  const userId=req.body._id
+  try{
+    await User.findOneAndDelete(userId)
+    res.send("user has been deleted successfully")
+  }catch(err){
+    res.status(400).send("somethig went wrong§")
+  }
+})
+//api for update and 
+//diffrence between patch and put 
+app.patch("/user", async(req, res)=>{
+const userId= req.body.userId
+//lets try with email id
+const data = req.body
+try{
+  await User.findByIdAndUpdate({_id:userId}, data,{returnDocument:"after"});
+  res.send("user updated successfully")
+}catch(err){
+  res.status(400).send("something went wrong")
+}
+})
+
 connectDB()
   .then(() => {
     console.log("connection established successfully ....");
