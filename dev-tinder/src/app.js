@@ -39,17 +39,29 @@ app.delete("/user", async(req, res)=>{
     res.status(400).send("somethig went wrong§")
   }
 })
+
 //api for update and 
 //diffrence between patch and put 
-app.patch("/user", async(req, res)=>{
-const userId= req.body.userId
-//lets try with email id
+app.patch("/user/:userId", async(req, res)=>{
+const userId= req.params?.userId
 const data = req.body
+
 try{
-  await User.findByIdAndUpdate({_id:userId}, data,{returnDocument:"after"});
-  res.send("user updated successfully")
+  const ALLOWED_FIELDS= ["age","skills","gender","firstName","about","photoUrl","password"]
+  const isAllowed = Object.keys(data).every((k)=>
+    ALLOWED_FIELDS.includes(k)
+  )
+  if(!isAllowed){
+throw new Error("update not allowed")
+  }
+  if(req.body?.skills.length > 12){
+    throw new Error("skill lenght should not be more than 12")
+    
+  }
+  await User.findByIdAndUpdate({_id:userId}, data,{returnDocument:"after",runValidators:true});
+  res.send("userß updated successfully")
 }catch(err){
-  res.status(400).send("something went wrong")
+  res.status(400).send("Faild to update user"+ err.message)
 }
 })
 
