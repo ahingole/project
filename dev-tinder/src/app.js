@@ -2,20 +2,52 @@ const express = require("express");
 const { connectDB } = require("./config/database");
 const app = express();
 const User = require("./models/user");
-
+const {validateSignUp} = require('./utils/validation')
+const bcrypt = require("bcrypt");
 //TO  add  express middleware to conevert json into object
 app.use(express.json())
 
-app.post("/signUp",async(req,res)=>{
-  console.log(req.body)
-  const user= new User(req.body)
-try{
-  await user.save();
-  res.send("user added sucessfully...")
-}catch(err){
-  res.status(400).send("not found"+ err.message)
-}
-})
+app.post("/signUp", async (req, res) => {
+  try {
+
+    validateSignUp(req);
+    const saltRounds=10;
+    
+    const hashpw= await bcrypt.hash(req.body?.password, saltRounds);
+    const user = new User({...req.body,password:hashpw});
+
+    await user.save();
+    res.send("user added sucessfully...");
+  } catch (err) {
+    res.status(400).send("Error:" + err.message);
+  }
+});
+
+// log in 
+
+app.post("/login", async (req, res) => {
+  const { emailId, password } = req.body;
+
+  try {
+    // find user by email
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      return res.status(401).send("Invalid credentials");
+    }
+
+    // compare entered password with hashed password in DB
+    const isValidPassword = await bcrypt.compare(password, user.password);
+
+    if (isValidPassword) {
+      res.send("User logged in successfully");
+    } else {
+      return res.status(401).send("Invalid credentials");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(400).send("Bad request");
+  }
+});
 
 //to get a data base on some keys we can do thisby 
 app.get("/user", async(req, res)=>{
